@@ -12,6 +12,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from '@material-ui/icons/Menu';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { useTheme } from "@material-ui/core/styles";
 
@@ -82,7 +85,46 @@ const useStyles = makeStyles((theme) => ({
       opacity: 1,
     },
   },
+  drawerIconContainer: {
+    marginLeft: 'auto',
+    "&:hover": {
+      backgroundColor: 'transparent'
+    }
+  },
+  drawerIcon: {
+    height: '50px',
+    width: '50px'
+  },
+  drawer: {
+    backgroundColor: theme.palette.primary.main
+  },
+  drawerItem: {
+    ...theme.typography.tab,
+    color: 'white',
+    opacity: 0.7
+  },
+  drawerItemEstimate: {
+    backgroundColor: theme.palette.secondary.main
+  },
+  drawerItemSelected: {
+    opacity: 1
+  }
 }));
+
+const menuOptions = [
+  { name: "Services", link: "/services", activeIndex: 1, selectedIndex: 0 },
+  { name: "Custom Software Development", link: "/custom-software", activeIndex: 1, selectedIndex: 1 },
+  { name: "Mobile App Development", link: "/mobile-apps", activeIndex: 1, selectedIndex: 2 },
+  { name: "Website Development", link: "/websites", activeIndex: 1, selectedIndex: 3 },
+];
+
+const routes = [
+  { name: 'Home', link: '/', activeIndex: 0 },
+  { name: 'Services', link: '/services', activeIndex: 1, ariaOwns: anchorEl ? "simple-menu" : undefined, ariaPopup: anchorEl ? "true" : undefined, mouseOver: (e) => handleClick(e) },
+  { name: 'The Revolution', link: '/revolution', activeIndex: 2 },
+  { name: 'About Us', link: '/about-us', activeIndex: 3 },
+  { name: 'Contact Us', link: '/contact-us', activeIndex: 4 }
+];
 
 export default function Header(props) {
   const classes = useStyles();
@@ -99,13 +141,6 @@ export default function Header(props) {
   const handleChange = (e, newValue) => {
     setValue(newValue);
   };
-
-  const menuOptions = [
-    { name: "Services", link: "/services" },
-    { name: "Custom Software Development", link: "/custom-software" },
-    { name: "Mobile App Development", link: "/mobile-apps" },
-    { name: "Website Development", link: "/websites" },
-  ];
 
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
@@ -124,64 +159,23 @@ export default function Header(props) {
   };
 
   useEffect(() => {
-    switch (window.location.pathname) {
-      case "/":
-        if (value !== 0) {
-          setValue(0);
-          setSelectedIndex(0);
-        }
+    [...menuOptions, ...routes].forEach(route => {
+      switch (window.location.pathname) {
+        case `${route.link}`:
+          if (value !== route.activeIndex) {
+            setValue(route.activeIndex);
 
-        break;
-      case "/services":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(0);
-        }
+            if (route.selectedIndex && route.selectedIndex !== selectedIndex) {
+              setSelectedIndex(route.selectedIndex);
+            }
+          }
 
-        break;
-      case "/custom-software":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(1);
-        }
-
-        break;
-      case "/mobile-apps":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(2);
-        }
-
-        break;
-      case "/websites":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(3);
-        }
-
-        break;
-      case "/revolution":
-        if (value !== 2) {
-          setValue(2);
-        }
-
-        break;
-      case "/about-us":
-        if (value !== 3) {
-          setValue(3);
-        }
-
-        break;
-      case "/contact-us":
-        if (value !== 4) {
-          setValue(4);
-        }
-
-        break;
-      default:
-        break;
-    }
-  }, [value, setValue, setSelectedIndex]);
+          break;
+        default:
+          break;
+      }
+    })
+  }, [value, selectedIndex, setValue, setSelectedIndex]);
 
   const tabs = (
     <>
@@ -191,34 +185,18 @@ export default function Header(props) {
         className={classes.tabContainer}
         indicatorColor="primary"
       >
-        <Tab label="Home" className={classes.tab} component={Link} to="/" />
-        <Tab
-          aria-owns={anchorEl ? "simple-menu" : undefined}
-          aria-haspopup={anchorEl ? "true" : undefined}
-          label="Services"
-          className={classes.tab}
-          component={Link}
-          onMouseOver={(e) => handleClick(e)}
-          to="/services"
-        />
-        <Tab
-          label="The Revolution"
-          className={classes.tab}
-          component={Link}
-          to="/revolution"
-        />
-        <Tab
-          label="About Us"
-          className={classes.tab}
-          component={Link}
-          to="/about-us"
-        />
-        <Tab
-          label="Contact Us"
-          className={classes.tab}
-          component={Link}
-          to="/contact-us"
-        />
+        {routes.map((route, index) => (
+          <Tab 
+            key={index}
+            className={classes.tab} 
+            component={Link}
+            label={route.name}
+            to={route.link}
+            aria-owns={route.ariaOwns}
+            aria-haspopup={route.ariaPopup}
+            onMouseOver={route.mouseOver}
+          />
+        ))}        
       </Tabs>
       <Button variant="contained" color="secondary" className={classes.button}>
         Free Estimate
@@ -259,11 +237,31 @@ export default function Header(props) {
         disableDiscovery={iOS}
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
-        onOpen={() => setOpenDrawer(true) }>
-          Example Drawer
+        onOpen={() => setOpenDrawer(true) }
+        classes={{ paper: classes.drawer }}>
+          <List disablePadding>
+            <ListItem divider button component={Link} to="/" onClick={() => { setOpenDrawer(false); setValue(0); }} selected={value === 0}>
+              <ListItemText className={[classes.drawerItem, value === 0 ? classes.drawerItemSelected: undefined ]} disableTypography>Home</ListItemText>
+            </ListItem>
+            <ListItem divider button component={Link} to="/services" onClick={() => { setOpenDrawer(false); setValue(1); }} selected={value === 1}>
+              <ListItemText className={[classes.drawerItem, value === 1 ? classes.drawerItemSelected: undefined ]} disableTypography>Services</ListItemText>
+            </ListItem>
+            <ListItem divider button component={Link} to="/revolution" onClick={() => { setOpenDrawer(false); setValue(2); }} selected={value === 2}>
+              <ListItemText className={[classes.drawerItem, value === 2 ? classes.drawerItemSelected: undefined ]} disableTypography>The Revolution</ListItemText>
+            </ListItem>
+            <ListItem divider button component={Link} to="/about-us" onClick={() => { setOpenDrawer(false); setValue(3); }} selected={value === 3}>
+              <ListItemText className={[classes.drawerItem, value === 3 ? classes.drawerItemSelected: undefined ]} disableTypography>About Us</ListItemText>
+            </ListItem>
+            <ListItem divider button component={Link} to="/contact-us" onClick={() => { setOpenDrawer(false); setValue(4); }} selected={value === 4}>
+              <ListItemText className={[classes.drawerItem, value === 4 ? classes.drawerItemSelected: undefined ]} disableTypography>Contact Us</ListItemText>
+            </ListItem>
+            <ListItem className={classes.drawerItemEstimate} divider button component={Link} to="/estimate" onClick={() => setOpenDrawer(false)}>
+              <ListItemText className={classes.drawerItem} disableTypography>Free Estimate</ListItemText>
+            </ListItem>
+          </List>
       </SwipeableDrawer>
-      <IconButton onClick={() => setOpenDrawer(!openDrawer)}>
-        <MenuIcon disableRipple />
+      <IconButton className={classes.drawerIconContainer} onClick={() => setOpenDrawer(!openDrawer)}>
+        <MenuIcon disableRipple className={classes.drawerIcon} />
       </IconButton>
     </>
   );
