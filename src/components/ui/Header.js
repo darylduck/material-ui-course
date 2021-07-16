@@ -70,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "50px",
     marginRight: "25px",
     height: "45px",
+    "&:hover": {
+      backgroundColor: theme.palette.secondary.light
+    }
   },
   logoContainer: {
     padding: 0,
@@ -130,7 +133,7 @@ export default function Header(props) {
   const menuOptions = useMemo(() => ([
     { name: "Services", link: "/services", activeIndex: 1, selectedIndex: 0 },
     { name: "Custom Software Development", link: "/custom-software", activeIndex: 1, selectedIndex: 1 },
-    { name: "Mobile App Development", link: "/mobile-apps", activeIndex: 1, selectedIndex: 2 },
+    { name: "iOS/Android App Development", link: "/mobile-apps", activeIndex: 1, selectedIndex: 2 },
     { name: "Website Development", link: "/websites", activeIndex: 1, selectedIndex: 3 },
   ]), []);
   
